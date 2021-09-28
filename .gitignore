@@ -1,0 +1,5 @@
+.DS_store
+.idea
+bin/
+notify_logs/
+data/config_dev.ini
