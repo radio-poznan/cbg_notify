@@ -31,7 +31,7 @@ func main() {
 	// keeper is a place to hold not send items or response was >400
 	keeper = cbg_notify.NewKeepToSend()
 	// ...and send them later
-	go keeper.Resend(60, func(items []cbg_notify.KeepItem) {
+	go keeper.Resend(cnf.ResendInMinutes, func(items []cbg_notify.KeepItem) {
 		for _, item := range items {
 			resp, err := cbg_notify.SendToServerKeeptItem(cnf, &item)
 			if err == nil && resp.Status == "success" {
@@ -98,7 +98,7 @@ func informAboutSavedItem(cnf *cbg_notify.RuntimeConfig, msg string, ts time.Tim
 }
 
 const (
-	DefaultRuntimeConfigFileName = "config.ini"
+	DefaultRuntimeConfigFileName    = "config.ini"
 	DefaultRuntimeConfigSectionName = "runtime"
 
 	formatSavedItem         = "%s - %s\t %s"
