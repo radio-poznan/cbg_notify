@@ -24,7 +24,7 @@ type StorageResponse struct {
 	Redirect string      `json:"redirect,omitempty"`
 }
 
-func SendToServerKeeptItem(cnf *RuntimeConfig, item *KeepItem) (ret StorageResponse, err error) {
+func SendToServerKeepItem(cnf *RuntimeConfig, item *KeepItem) (ret StorageResponse, err error) {
 	return SendToServer(cnf, item.Term, item.Ts)
 }
 
@@ -41,13 +41,14 @@ func SendToServer(cnf *RuntimeConfig, msg string, ts time.Time) (ret StorageResp
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	req.Header.Add("RPS-TOKEN", cnf.StoreHash)
 
-
 	res, err := client.Do(req)
 	if err != nil {
 		ErrHandle(err, "request send to server error")
 		return ret, err
 	}
-	defer res.Body.Close()
+	defer func() {
+		_ = res.Body.Close()
+	}()
 
 	respBody, errBody := ioutil.ReadAll(res.Body)
 	if errBody != nil {

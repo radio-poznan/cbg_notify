@@ -18,9 +18,15 @@ func CopyFile(from, to string) error {
 	return cmd.Run()
 }
 
-
 func ReadFileIntoChan(path string, c chan string) error {
-	fileByte, err := ioutil.ReadFile(path)
+	destPath := path + "_PZ"
+
+	err := CopyFile(path, destPath)
+	if err != nil {
+		fmt.Println("error copy file: " + err.Error())
+	}
+
+	fileByte, err := ioutil.ReadFile(destPath)
 	if err != nil {
 		return err
 	}

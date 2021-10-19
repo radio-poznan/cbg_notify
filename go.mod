@@ -1,4 +1,4 @@
-module local/radio/cbg_notify
+module github.com/radio-poznan/cbg_notify
 
 go 1.17
 

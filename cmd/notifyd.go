@@ -3,7 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
-	"local/radio/cbg_notify"
+	"github.com/radio-poznan/cbg_notify"
 	"os"
 	"path"
 	"strings"
@@ -26,14 +26,14 @@ func main() {
 	// build config file path using runtime pwd
 	cnf = prepareRuntimeConfig(cnfFileName)
 	// show what so far is configured
-	fmt.Println(fmt.Sprintf(formatRuntimeParameters, cnf.StoreContext, cnf.StoreHash, cnf.InputFile, cnf.StoreHost, cnfFileName))
+	fmt.Println(fmt.Sprintf(formatRuntimeParameters, cnf.StoreContext, cnf.StoreHash, cnf.InputFile, cnf.StoreHost, cnfFileName, cnf.ResendInMinutes))
 
 	// keeper is a place to hold not send items or response was >400
 	keeper = cbg_notify.NewKeepToSend()
 	// ...and send them later
 	go keeper.Resend(cnf.ResendInMinutes, func(items []cbg_notify.KeepItem) {
 		for _, item := range items {
-			resp, err := cbg_notify.SendToServerKeeptItem(cnf, &item)
+			resp, err := cbg_notify.SendToServerKeepItem(cnf, &item)
 			if err == nil && resp.Status == "success" {
 				keeper.Remove(item)
 			}
@@ -73,7 +73,12 @@ func main() {
 			{
 				cbg_notify.PrintProgress()
 				time.Sleep(time.Duration(cnf.TimeoutInSecond) * time.Second)
-				go cbg_notify.ReadFileIntoChan(cnf.InputFile, newContentChanel)
+				go func() {
+					err := cbg_notify.ReadFileIntoChan(cnf.InputFile, newContentChanel)
+					if err != nil {
+						fmt.Println("error ReadFileIntoChan: " + err.Error())
+					}
+				}()
 			}
 		}
 	}
@@ -102,5 +107,9 @@ const (
 	DefaultRuntimeConfigSectionName = "runtime"
 
 	formatSavedItem         = "%s - %s\t %s"
-	formatRuntimeParameters = "Stacja: %v / %v \nPlik z napisami: %v \nHosta zapisu: %v\nPlik konfiguracyjny: %v\n"
+	formatRuntimeParameters = "Stacja: %v / %v \n" +
+		"Plik z napisami: %v \n" +
+		"Hosta zapisu: %v\n" +
+		"Plik konfiguracyjny: %v\n" +
+		"Czas ponownego zapisu: %vsek.\n"
 )

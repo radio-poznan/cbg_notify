@@ -32,7 +32,7 @@ func NewRuntimeConfig(configPath, sectionName string) (*RuntimeConfig, error) {
 	}
 
 	cfg.Section("info").Key("last_read").SetValue(time.Now().Format("2006-01-02 15:04:05"))
-	cfg.SaveTo(configPath)
+	_ = cfg.SaveTo(configPath)
 
 	return &RuntimeConfig{
 		StoreContext:    sect.Key("ctx").Value(),
